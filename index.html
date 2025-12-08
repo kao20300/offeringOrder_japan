@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>台東地區農會禮儀部 - 祭品訂購單 (最終同步版)</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="app-wrapper">
+      <section class="control-panel no-print" id="control-panel-section">
+        <div class="panel-title">案件基本資料設定</div>
+        <div class="input-grid-rwd">
+          <div class="input-group" id="area-name">
+            <label>案件名 <span style="color: red">*</span></label>
+            <input
+              type="text"
+              id="caseName"
+              class="required-input"
+              placeholder="輸入案件名"
+            />
+          </div>
+          <div class="input-group" id="area-religion">
+            <label>宗教</label>
+            <select id="religion" onchange="updateSpecs()">
+              <option value="">請選擇</option>
+            </select>
+          </div>
+          <div class="input-group" id="area-diet">
+            <label>葷/素</label>
+            <select id="dietType">
+              <option value="素">素</option>
+              <option value="葷">葷</option>
+            </select>
+          </div>
+          <div class="input-group" id="area-spec">
+            <label>規格</label>
+            <select id="specification">
+              <option value="">請先選擇宗教</option>
+            </select>
+          </div>
+          <div class="input-group" id="area-location">
+            <label>治喪地點</label>
+            <select id="location">
+              <option value="暫存">暫存</option>
+              <option value="自宅">自宅</option>
+              <option value="市殯">市殯</option>
+              <option value="會館">會館</option>
+            </select>
+          </div>
+          <div class="input-group" id="area-anshen">
+            <label>安神主</label>
+            <select id="hasAnShenZhu">
+              <option value="無">無</option>
+              <option value="有">有</option>
+            </select>
+          </div>
+          <div class="input-group" id="area-receive">
+            <label>接案日 <span style="color: red">*</span></label>
+            <input type="date" id="receiveDate" class="required-input" />
+          </div>
+          <div class="input-group" id="area-funeral">
+            <label>出殯日 <span style="color: red">*</span></label>
+            <input type="date" id="funeralDate" class="required-input" />
+          </div>
+        </div>
+        <div class="action-buttons">
+          <button class="btn btn-secondary" onclick="resetForm()">
+            初始化
+          </button>
+          <button class="btn btn-primary" onclick="applyDefaults()">
+            帶入預設值
+          </button>
+        </div>
+      </section>
+
+      <div class="main-container" id="capture-area">
+        <header class="doc-header">
+          <h1>
+            台東地區農會禮儀部辦理<br class="mobile-break" />
+            【<span id="header-case-name">無名氏</span>】祭品訂購單
+          </h1>
+        </header>
+
+        <section class="section-container" id="section-fruit">
+          <div class="section-header-row">
+            <div class="header-left">
+              <h2>一、換果</h2>
+            </div>
+            <div class="header-right no-print">
+              <button
+                class="btn-icon delete-section"
+                onclick="clearSection('fruit-body')"
+              >
+                <i class="fa-solid fa-trash-can"></i>
+              </button>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="jp-table">
+              <thead>
+                <tr>
+                  <th class="col-date">日期</th>
+                  <th class="col-item">品項</th>
+                  <th class="col-qty">數量</th>
+                  <th class="col-unit mobile-hide">單位</th>
+                  <th class="col-price mobile-hide">單價</th>
+                  <th class="col-total mobile-hide">總價</th>
+                  <th class="col-op no-print">操作</th>
+                </tr>
+              </thead>
+              <tbody id="fruit-body"></tbody>
+            </table>
+          </div>
+          <div class="section-footer">
+            <div class="footer-left no-print">
+              <button class="btn-add" onclick="addFruitRow()">
+                ✚ 新增品項
+              </button>
+            </div>
+            <div class="footer-right">
+              <span class="total-label">合計：</span>
+              <span class="total-value" id="fruit-total">0</span>
+            </div>
+          </div>
+        </section>
+
+        <div id="ritual-sections-container"></div>
+
+        <div class="add-section-btn-container no-print">
+          <button class="btn-add-section" onclick="addNewRitualSection()">
+            ▼ 新增儀式 (自訂空白)
+          </button>
+        </div>
+
+        <section class="section-container" id="section-meals">
+          <div class="section-header-row">
+            <div class="header-left">
+              <h2>五、飯菜訂購</h2>
+            </div>
+            <div class="header-right no-print">
+              <button
+                class="btn-icon delete-section"
+                onclick="clearSection('meals-body')"
+              >
+                <i class="fa-solid fa-trash-can"></i>
+              </button>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="jp-table">
+              <thead>
+                <tr>
+                  <th class="col-date">取貨日期</th>
+                  <th class="col-ritual">儀式</th>
+                  <th class="col-item">品項</th>
+                  <th class="col-price mobile-hide">單價</th>
+                  <th class="col-total mobile-hide">總價</th>
+                  <th class="col-qty">數量</th>
+                  <th class="col-op no-print">操作</th>
+                </tr>
+              </thead>
+              <tbody id="meals-body"></tbody>
+            </table>
+          </div>
+          <div class="section-footer">
+            <div class="footer-left no-print">
+              <button class="btn-add" onclick="addMealRow()">✚ 新增品項</button>
+            </div>
+            <div class="footer-right">
+              <span class="total-label">合計：</span>
+              <span class="total-value" id="meals-total">0</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="summary-section" id="section-summary">
+          <div class="grand-total-row">
+            總計金額：<span id="grand-total" class="text-danger">0</span> 元
+          </div>
+
+          <div class="remarks-box">
+            <label style="display: block; font-weight: bold; margin-bottom: 5px"
+              >其他備註：</label
+            >
+            <textarea
+              id="remarks"
+              rows="2"
+              placeholder="請輸入備註事項..."
+            ></textarea>
+
+            <div
+              class="report-container"
+              style="
+                background-color: #f8f8f8;
+                padding: 5px;
+                border: 1px dotted #999;
+                margin-bottom: 10px;
+              "
+            >
+              <label
+                style="
+                  font-weight: bold;
+                  display: block;
+                  padding: 2px 0;
+                  font-size: 0.9rem;
+                "
+              >
+                案件基本資料設定彙整報告：
+              </label>
+              <div
+                id="case-summary-report"
+                style="white-space: pre-wrap; color: #444; font-size: 0.95rem"
+              >
+                [尚未設定]
+              </div>
+            </div>
+
+            <div class="contact-info">
+              <div
+                class="info-row"
+                style="
+                  display: flex;
+                  gap: 15px;
+                  flex-wrap: wrap;
+                  align-items: center;
+                "
+              >
+                <span
+                  >案件聯絡人：<input
+                    type="text"
+                    value="小高"
+                    style="
+                      border: none;
+                      border-bottom: 1px solid #000;
+                      text-align: center;
+                      width: 80px;
+                    "
+                /></span>
+                <span
+                  >電話：<input
+                    type="text"
+                    value="0928349951"
+                    style="
+                      border: none;
+                      border-bottom: 1px solid #000;
+                      text-align: center;
+                      width: 100px;
+                    "
+                /></span>
+                <span>製表時間：<span id="print-date"></span></span>
+                <button class="btn-small no-print" onclick="setPrintDate()">
+                  更新時間
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <div class="footer-controls no-print">
+      <button class="btn-float" onclick="downloadPDF()">
+        <i class="fa-solid fa-file-pdf"></i> 列印 / PDF
+      </button>
+      <button class="btn-float" onclick="downloadImage()">
+        <i class="fa-solid fa-image"></i> 存為圖片
+      </button>
+      <button class="btn-float" onclick="showPriceList()">
+        <i class="fa-solid fa-list"></i> 預設物價
+      </button>
+    </div>
+
+    <div id="priceListModal" class="modal no-print">
+      <div class="modal-content">
+        <span class="close" onclick="closePriceList()">&times;</span>
+        <h2>品項單位及單價預設值</h2>
+        <div class="table-scroll">
+          <table class="jp-table" id="price-list-table">
+            <thead>
+              <tr>
+                <th>品項</th>
+                <th>單位</th>
+                <th>單價</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>

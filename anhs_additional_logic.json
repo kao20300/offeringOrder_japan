@@ -1,0 +1,26 @@
+{
+    "_note_file_purpose": "此為安神主追加祭品規則文件，用於出殯資料區A+B加總。",
+  "metadata": {
+    "title": "安神主祭品",
+    "description": "若『有安神主』時，需在出殯資料區固定追加的祭品清單及數量。",
+    "data_type": "ANHS_ADDITIONAL_LOGIC",
+    "version": "1.0.0",
+    "last_updated": "2025-12-05",
+    "trigger_condition": "HasAnShenZhu_True" 
+  },
+  "data": {
+    "_comment_logic": "追加的品項和數量是固定的，不隨儀式或宗教變動。",
+    "葷": {
+      "三小盤(果品)": 1,
+      "紅圓、發糕": 1,
+      "葷三牲": 1,
+      "五菜一飯(葷)": 1
+    },
+    "素": {
+      "三小盤(果品)": 1,
+      "紅圓、發糕": 1,
+      "小素三牲": 1,
+      "五菜一飯(素)": 1
+    }
+  }
+}
