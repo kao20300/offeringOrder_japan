@@ -6,7 +6,7 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
     />
-    <title>台東地區農會禮儀部 - 祭品訂購單 (最終同步版)</title>
+    <title>台東地區農會禮儀部 - 祭品訂購單</title>
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
@@ -273,20 +273,20 @@
         <i class="fa-solid fa-file-pdf"></i>
       </button>
 
-      <button class="btn-float" onclick="printFax()" title="傳真專用">
-        <i class="fa-solid fa-fax"></i>
-      </button>
-
-      <button class="btn-float" onclick="showPriceList()" title="預設物價">
-        <i class="fa-solid fa-list"></i>
-      </button>
-
       <button class="btn-float" onclick="downloadImage()" title="存為圖片">
         <i class="fa-solid fa-image"></i>
       </button>
 
       <button class="btn-float" onclick="shareImage()" title="分享/Line">
         <i class="fa-solid fa-share-nodes"></i>
+      </button>
+
+      <button class="btn-float" onclick="printFax()" title="傳真專用">
+        <i class="fa-solid fa-fax"></i>
+      </button>
+
+      <button class="btn-float" onclick="showPriceList()" title="預設物價">
+        <i class="fa-solid fa-list"></i>
       </button>
     </div>
 
@@ -306,6 +306,14 @@
             <tbody></tbody>
           </table>
         </div>
+      </div>
+    </div>
+
+    <div id="imgPreviewModal" class="modal no-print">
+      <div class="modal-content" style="max-width: 90%; max-height: 90vh">
+        <span class="close" onclick="closeImgPreview()">&times;</span>
+        <div class="modal-tip">請長按圖片並選擇「加入照片」或「分享」</div>
+        <div class="img-preview-container" id="imgPreviewContainer"></div>
       </div>
     </div>
 
