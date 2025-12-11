@@ -1,19 +1,17 @@
 /**
  * 檔案：script.js
- * 版本：2025-12-08 Final (iOS Image Fix + Drag&Drop + Layout)
+ * 版本：2025-12-08 Final (iOS Enhanced + Drag&Drop)
  */
 
 let PRICE_LIST = {};
 let BASE_OFFERING_LOGIC = {};
 let ANHS_LOGIC = {};
-
 let pendingMealItems = []; 
 
 // 程式啟動
 async function initData() {
     try {
         console.log("正在載入外部資料...");
-        
         const [priceRes, logicRes, anhsRes] = await Promise.all([
             fetch('./price_list.json'),
             fetch('./base_offering_logic.json'),
@@ -33,10 +31,9 @@ async function initData() {
         ANHS_LOGIC = anhsJson.data;
 
         console.log("資料載入成功！開始初始化介面...");
-
         initDropdownsFromJSON(); 
         initRitualSections(); 
-        initRowDragAndDrop(); // 啟用拖曳
+        initRowDragAndDrop();
 
     } catch (error) {
         console.error("載入失敗:", error);
@@ -65,28 +62,23 @@ window.addEventListener('DOMContentLoaded', () => {
     document.body.addEventListener('change', function(e) {
         if (e.target.matches('input, select')) {
             if (e.target.classList.contains('row-item')) updateRowUnitPrice(e.target);
-            
             if (e.target.classList.contains('date-input-hidden')) {
                 const wrapper = e.target.closest('.date-cell-wrapper') || e.target.closest('.date-display-wrapper');
                 if(wrapper) {
                      const textSpan = wrapper.querySelector('.date-display-text');
                      if(textSpan) textSpan.innerText = formatDisplayDate(e.target.value);
                 }
-                if (e.target.classList.contains('fruit-date-input')) {
-                     validateFruitDates();
-                }
+                if (e.target.classList.contains('fruit-date-input')) validateFruitDates();
             }
             if (e.target.id === 'funeralDate') validateFruitDates();
-            
             calculateAllTotals();
-            mergeTableCells(document.getElementById('meals-body')); // 變更時重算合併
+            mergeTableCells(document.getElementById('meals-body')); 
         }
     });
 
     setupDragDrop();
 });
 
-// ... [省略不變的 Helper functions: initDropdownsFromJSON, initRitualSections, updateSpecs, validateInput, checkRequiredFields] ...
 function initDropdownsFromJSON() {
     const religionSelect = document.getElementById('religion');
     if (!BASE_OFFERING_LOGIC["頭七"]) return;
@@ -187,7 +179,6 @@ function applyDefaults() {
     calculateAllTotals();
 }
 
-// ... [generateRitualSection 保持不變] ...
 function generateRitualSection(sectionKey, inputs) {
     const tbody = document.getElementById(`${sectionKey}-body`);
     tbody.innerHTML = ''; 
@@ -237,31 +228,17 @@ function generateRitualSection(sectionKey, inputs) {
     if (tbody.children.length === 0) addGeneralRow(tbody.id);
 }
 
-
 function generateMealsSection(inputs) {
     const tbody = document.getElementById('meals-body');
     tbody.innerHTML = ''; 
-
     const MEAL_SCHEME = 'B'; 
-
-    let mealItemSpec = "";
-    if (MEAL_SCHEME === 'A') {
-        mealItemSpec = "五菜一飯(素)";
-    } else {
-        mealItemSpec = inputs.diet === '素' ? "五菜一飯(素)" : "五菜一飯(葷)";
-    }
+    let mealItemSpec = (MEAL_SCHEME === 'A') ? "五菜一飯(素)" : (inputs.diet === '素' ? "五菜一飯(素)" : "五菜一飯(葷)");
     
+    // 豎靈預設
     let item1_Qty = 0; 
     let item2_Qty = 0; 
 
-    if(inputs.location === '自宅') {
-        if(inputs.diet === '素') { item1_Qty = 0; item2_Qty = 0; } 
-        else { item1_Qty = 0; item2_Qty = 0; }
-    } else {
-        if(inputs.diet === '素') { item1_Qty = 0; item2_Qty = 0; } 
-        else { item1_Qty = 0; item2_Qty = 0; }
-    }
-
+    // 產生「豎靈」 (移除 if(qty<=0) return 限制，確保顯示)
     addMealRowData(inputs.receiveDate, "豎靈", "白飯、鹹蛋", item1_Qty);
     addMealRowData(inputs.receiveDate, "豎靈", mealItemSpec, item2_Qty);
 
@@ -274,7 +251,6 @@ function generateMealsSection(inputs) {
         }
         addMealRowData(currentPickup || p.date, p.ritual, p.item, p.qty);
     });
-
     mergeTableCells(tbody);
 }
 
@@ -329,141 +305,13 @@ function addFruitRow(targetDate = null, defaultQty = 1) {
     validateFruitDates();
 }
 
-// ... [validateFruitDates, createRitualDOM, mergeTableCells 保持不變] ...
-function validateFruitDates() {
-    const funeralInput = document.getElementById('funeralDate');
-    if(!funeralInput || !funeralInput.value) return;
-    const funeralDate = new Date(funeralInput.value);
-    const warningThreshold = new Date(funeralDate);
-    warningThreshold.setDate(funeralDate.getDate() - 2);
-    warningThreshold.setHours(23, 59, 59, 999); 
-    document.querySelectorAll('.fruit-date-input').forEach(input => {
-        if(!input.value) {
-             input.closest('tr').classList.remove('row-warning');
-             return;
-        }
-        const checkDate = new Date(input.value);
-        checkDate.setHours(0, 0, 0, 0); 
-        const tr = input.closest('tr');
-        if(checkDate > warningThreshold) {
-            tr.classList.add('row-warning');
-            input.title = "";
-        } else {
-            tr.classList.remove('row-warning');
-            input.title = "";
-        }
-    });
-}
-function createRitualDOM(key) {
-    const container = document.getElementById('ritual-sections-container');
-    const titles = { 'head7': '二、頭七', 'ritual': '三、法事', 'funeral': '四、出殯' };
-    const title = titles[key] || '自訂儀式';
-    const section = document.createElement('section');
-    section.className = 'section-container';
-    section.id = `section-${key}`;
-    section.setAttribute('draggable', 'true');
-    section.innerHTML = `
-      <div class="section-header-row">
-        <div class="header-left">
-            <h2>${title}</h2>
-            <div class="date-display-wrapper">
-                <span class="date-display-text" id="${key}-date-text">--/--</span>
-                <i class="fa-regular fa-calendar-days date-icon"></i>
-                <input type="date" class="date-input-hidden no-print" id="${key}-date-input" onchange="syncDate('${key}')" />
-            </div>
-        </div>
-        <div class="pickup-info-center-align">
-            取貨時間：
-            <div class="date-display-wrapper">
-                 <span id="${key}-pickup-display" class="date-display-text">--/--</span>
-                 <i class="fa-regular fa-calendar-days date-icon"></i>
-                 <input type="date" class="date-input-hidden no-print" id="${key}-pickup-date" onchange="syncPickupDisplay('${key}')" />
-            </div>
-            <input type="time" class="clean-time-input" id="${key}-pickup-time" value="07:00" />
-        </div>
-        <div class="header-right no-print">
-          <button class="btn-icon delete-section" onclick="clearSectionUI('section-${key}', true)" title="刪除整個儀式">
-            <i class="fa-solid fa-trash-can"></i>
-          </button>
-        </div>
-      </div>
-      <div class="table-responsive">
-        <table class="jp-table">
-            <thead>
-            <tr>
-                <th class="col-item">品項</th>
-                <th class="col-qty">數量</th>
-                <th class="col-unit mobile-hide">單位</th>
-                <th class="col-price mobile-hide">單價</th>
-                <th class="col-total mobile-hide">總價</th>
-                <th class="col-op no-print">操作</th>
-            </tr>
-            </thead>
-            <tbody id="${key}-body"></tbody>
-        </table>
-      </div>
-      <div class="section-footer">
-        <div class="footer-left no-print">
-            <button class="btn-add" onclick="addGeneralRow('${key}-body')">✚ 新增品項</button>
-        </div>
-        <div class="footer-right">
-            <span class="total-label">合計：</span>
-            <span class="total-value" id="${key}-total">0</span>
-        </div>
-      </div>
-    `;
-    container.appendChild(section);
-}
-function mergeTableCells(tbody) {
-    const rows = tbody.querySelectorAll('tr');
-    if (rows.length === 0) return;
-    let lastDate = null;
-    let lastRitual = null;
-    let dateRowSpan = 1;
-    let ritualRowSpan = 1;
-    // 重置所有 rowspan
-    for (let i = 0; i < rows.length; i++) {
-         rows[i].cells[0].style.display = '';
-         rows[i].cells[0].rowSpan = 1;
-         rows[i].cells[1].style.display = '';
-         rows[i].cells[1].rowSpan = 1;
-    }
-    // 重新計算
-    for (let i = 0; i < rows.length; i++) {
-        const row = rows[i];
-        const dateInput = row.querySelector('.date-input-hidden');
-        const ritualInput = row.cells[1].querySelector('input');
-        const currentDate = dateInput ? dateInput.value : '';
-        const currentRitual = ritualInput ? ritualInput.value : '';
-        if (i > 0 && currentDate === lastDate && currentDate !== '') {
-            dateRowSpan++;
-            row.cells[0].style.display = 'none';
-            rows[i - dateRowSpan + 1].cells[0].rowSpan = dateRowSpan;
-        } else {
-            lastDate = currentDate;
-            dateRowSpan = 1;
-        }
-        if (i > 0 && currentRitual === lastRitual && currentRitual !== '' && currentDate === lastDate) {
-            ritualRowSpan++;
-            row.cells[1].style.display = 'none';
-            rows[i - ritualRowSpan + 1].cells[1].rowSpan = ritualRowSpan;
-        } else {
-            lastRitual = currentRitual;
-            ritualRowSpan = 1;
-        }
-    }
-}
-
-// [核心修正] addMealRowData: 移除數量判斷，即使是 0 也產生 (為了解決拖曳與顯示問題)
+// 飯菜加入 rowData (移除 qty<=0 限制)
 function addMealRowData(date, ritual, item, qty) {
-    // 移除 if (qty <= 0) return; 
-    
     const tbody = document.getElementById('meals-body');
     const info = getPriceInfo(item);
     const tr = document.createElement('tr');
     tr.className = 'draggable-row';
     tr.setAttribute('draggable', 'true');
-    
     tr.innerHTML = `
         <td class="td-date-cell">
             <div class="date-cell-wrapper">
@@ -483,6 +331,8 @@ function addMealRowData(date, ritual, item, qty) {
     calculateAllTotals();
 }
 
+// ... [addGeneralRow, addDays, formatDisplayDate, getPriceInfo, createOptions, syncDate, syncPickupDisplay, updateMealsDates, updateRowUnitPrice, calculateAllTotals, removeRow, clearSectionUI, clearSection, addNewRitualSection, resetForm, addMealRow, updateSummaryReport, setPrintDate, setupDragDrop, getDragAfterElement 保持不變] ...
+
 function addGeneralRow(tbodyId, item='', qty='') {
     const tbody = document.getElementById(tbodyId);
     const info = getPriceInfo(item);
@@ -498,8 +348,6 @@ function addGeneralRow(tbodyId, item='', qty='') {
     tbody.appendChild(tr);
     calculateAllTotals();
 }
-
-// ... [addDays, formatDisplayDate, getPriceInfo, createOptions, syncDate, syncPickupDisplay, updateMealsDates, updateRowUnitPrice, calculateAllTotals, removeRow, clearSectionUI, clearSection, addNewRitualSection, resetForm, addMealRow, updateSummaryReport, setPrintDate, setupDragDrop, getDragAfterElement 保持不變] ...
 function addDays(dateStr, days) {
     if(!dateStr) return '';
     const date = new Date(dateStr);
@@ -671,7 +519,7 @@ function printFax() {
 
 function downloadPDF() { window.print(); }
 
-// [核心修正] iOS 圖片生成優化：自動降解析度 + Modal 顯示
+// iOS 圖片下載 (修復版)
 function downloadImage() {
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
     const panel = document.getElementById('control-panel-section');
@@ -693,7 +541,8 @@ function downloadImage() {
     area.style.transform = 'none'; 
     window.scrollTo(0, 0);
 
-    const scaleValue = isIOS ? 1 : 2; // iOS 改為 1
+    // iOS 使用 scale: 2 (若仍閃退可改回 1.5)
+    const scaleValue = isIOS ? 2 : 2;
 
     const options = {
         scale: scaleValue, 
@@ -713,18 +562,16 @@ function downloadImage() {
         const fileName = `訂購單_${name}.png`;
 
         if (isIOS) {
-            // iOS 改用 Modal 顯示
+            // iOS: 改用 Modal 顯示圖片
             const imgData = canvas.toDataURL("image/png");
             const modal = document.getElementById('imgPreviewModal');
             const container = document.getElementById('imgPreviewContainer');
-            
             container.innerHTML = '';
             const img = new Image();
             img.src = imgData;
             container.appendChild(img);
-            
             modal.style.display = 'block';
-            // alert("圖片已生成！\n請長按圖片並選擇「加入照片」或「分享」。");
+            // alert("圖片已生成！請長按儲存。");
         } else {
             const a = document.createElement('a');
             a.download = fileName;
@@ -748,25 +595,24 @@ function downloadImage() {
     }
 }
 
-// [核心修正] 分享功能：失敗時回退到 Modal
+// 分享功能
 function shareImage() {
     if (!navigator.canShare) {
         alert("不支援分享，將改為圖片下載。");
         downloadImage();
         return;
     }
-
+    // ... [邏輯與 downloadImage 類似，最後呼叫 navigator.share] ...
+    // 為節省篇幅，此處邏輯與上方 downloadImage 結構一致，僅最後動作不同
     const panel = document.getElementById('control-panel-section');
     const area = document.getElementById('capture-area');
     const footer = document.querySelector('.footer-controls'); 
-    
     const originalPanelDisplay = panel.style.display;
     const originalFooterDisplay = footer ? footer.style.display : '';
     const originalWidth = area.style.width;
     const originalMargin = area.style.margin;
     const originalMaxWidth = area.style.maxWidth;
     const originalTransform = area.style.transform;
-    
     panel.style.display = 'none';
     if(footer) footer.style.display = 'none';
     area.style.width = '1100px';
@@ -776,7 +622,7 @@ function shareImage() {
     window.scrollTo(0, 0);
 
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-    const scaleValue = isIOS ? 1 : 2; // iOS 改為 1
+    const scaleValue = isIOS ? 2 : 2;
 
     const options = {
         scale: scaleValue, 
@@ -795,11 +641,7 @@ function shareImage() {
             const name = document.getElementById('caseName').value || '訂購單';
             const fileName = `Order_${name}.png`;
             const file = new File([blob], fileName, { type: "image/png" });
-            const shareData = {
-                files: [file],
-                title: '祭品訂購單',
-            };
-
+            const shareData = { files: [file], title: '祭品訂購單' };
             try {
                 if (navigator.canShare(shareData)) {
                     await navigator.share(shareData);
@@ -807,10 +649,7 @@ function shareImage() {
                     downloadImage(); 
                 }
             } catch (err) {
-                if (err.name !== 'AbortError') {
-                    console.error("分享失敗:", err);
-                    downloadImage(); // 失敗就開 Modal
-                }
+                if (err.name !== 'AbortError') downloadImage();
             } finally {
                 restoreStyles();
             }
@@ -830,7 +669,7 @@ function shareImage() {
     }
 }
 
-// [新增] 飯菜區行拖曳功能
+// 飯菜區行拖曳
 function initRowDragAndDrop() {
     const tbody = document.getElementById('meals-body');
     let draggedRow = null;
@@ -839,7 +678,6 @@ function initRowDragAndDrop() {
         draggedRow = e.target.closest('tr');
         if(draggedRow) {
             e.dataTransfer.effectAllowed = 'move';
-            // 使用 setTimeout 讓視覺效果正確
             setTimeout(() => draggedRow.classList.add('dragging-row'), 0);
         }
     });
@@ -849,7 +687,6 @@ function initRowDragAndDrop() {
         const targetRow = e.target.closest('tr');
         if (targetRow && targetRow !== draggedRow && tbody.contains(targetRow)) {
             const rect = targetRow.getBoundingClientRect();
-            // 判斷滑鼠在目標行的上半部還是下半部
             const next = (e.clientY - rect.top) / (rect.bottom - rect.top) > 0.5;
             tbody.insertBefore(draggedRow, next ? targetRow.nextSibling : targetRow);
         }
@@ -865,11 +702,7 @@ function initRowDragAndDrop() {
     });
 }
 
-// 關閉圖片 Modal
-function closeImgPreview() {
-    document.getElementById('imgPreviewModal').style.display = 'none';
-}
-
+function closeImgPreview() { document.getElementById('imgPreviewModal').style.display = 'none'; }
 function showPriceList() { document.getElementById("priceListModal").style.display = "block"; showPriceTable(); }
 function closePriceList() { document.getElementById("priceListModal").style.display = "none"; }
 function showPriceTable() {

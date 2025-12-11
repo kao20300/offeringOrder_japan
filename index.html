@@ -73,12 +73,21 @@
             <input type="date" id="funeralDate" class="required-input" />
           </div>
         </div>
+
         <div class="action-buttons">
-          <button class="btn btn-secondary" onclick="resetForm()">
-            初始化
+          <button
+            class="btn-circle btn-secondary"
+            onclick="resetForm()"
+            title="初始化"
+          >
+            <i class="fa-solid fa-rotate-right"></i>
           </button>
-          <button class="btn btn-primary" onclick="applyDefaults()">
-            帶入預設值
+          <button
+            class="btn-circle btn-primary"
+            onclick="applyDefaults()"
+            title="帶入預設值"
+          >
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
           </button>
         </div>
       </section>
@@ -290,6 +299,14 @@
       </button>
     </div>
 
+    <div id="imgPreviewModal" class="modal no-print">
+      <div class="modal-content" style="max-width: 90%; max-height: 90vh">
+        <span class="close" onclick="closeImgPreview()">&times;</span>
+        <div class="modal-tip">請長按圖片並選擇「加入照片」或「分享」</div>
+        <div class="img-preview-container" id="imgPreviewContainer"></div>
+      </div>
+    </div>
+
     <div id="priceListModal" class="modal no-print">
       <div class="modal-content">
         <span class="close" onclick="closePriceList()">&times;</span>
@@ -306,14 +323,6 @@
             <tbody></tbody>
           </table>
         </div>
-      </div>
-    </div>
-
-    <div id="imgPreviewModal" class="modal no-print">
-      <div class="modal-content" style="max-width: 90%; max-height: 90vh">
-        <span class="close" onclick="closeImgPreview()">&times;</span>
-        <div class="modal-tip">請長按圖片並選擇「加入照片」或「分享」</div>
-        <div class="img-preview-container" id="imgPreviewContainer"></div>
       </div>
     </div>
 

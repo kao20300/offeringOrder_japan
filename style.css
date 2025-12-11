@@ -5,14 +5,14 @@
     --alert-bg: rgba(255, 192, 203, 0.6);
     --danger-text: #d00;
     --border-color: #ccc;
-    --input-height: 42px; /* 統一輸入框高度 */
+    --input-height: 42px; 
 }
 
 body {
     font-family: "Microsoft JhengHei", "Heiti TC", sans-serif;
     background-color: #f5f5f5;
     margin: 0;
-    padding: 0 0 100px 0; /* 增加底部留白給按鈕 */
+    padding: 0 0 100px 0; 
     color: #333;
     font-size: 16px;
     width: 100%;
@@ -35,7 +35,7 @@ body {
 
 .panel-title { font-weight: bold; margin-bottom: 10px; border-left: 5px solid #333; padding-left: 10px; font-size: 1.1rem; }
 
-.input-grid-rwd { display: grid; gap: 12px; } /* 增加間距 */
+.input-grid-rwd { display: grid; gap: 12px; }
 
 /* Grid Areas */
 #area-name { grid-area: name; }
@@ -65,7 +65,7 @@ body {
     }
 }
 
-/* Input & Alerts - [修正] iOS 輸入框美化 */
+/* Input & Alerts */
 @keyframes flash-red {
     0% { box-shadow: 0 0 5px red; border-color: red; background-color: #fff5f5; }
     50% { box-shadow: none; border-color: #fca5a5; background-color: #fff; }
@@ -75,7 +75,6 @@ body {
 .input-group { display: flex; flex-direction: column; width: 100%; }
 .input-group label { font-size: 0.95rem; font-weight: bold; margin-bottom: 5px; }
 
-/* 統一所有輸入框樣式，解決 iOS 醜陋問題 */
 .input-group input, .input-group select { 
     padding: 0 10px;
     height: var(--input-height);
@@ -85,12 +84,9 @@ body {
     width: 100%; 
     box-sizing: border-box; 
     background-color: #fff;
-    
-    /* iOS 專用修正 */
     min-width: 0;           
     -webkit-appearance: none; 
     appearance: none;
-    border-radius: 4px; /* 再次強制圓角 */
 }
 
 /* === Main Container === */
@@ -113,7 +109,7 @@ body {
 .section-container { margin-bottom: 25px; width: 100%; border: 1px solid transparent; transition: transform 0.2s, box-shadow 0.2s; background: #fff; }
 .section-container.dragging { opacity: 0.5; border: 2px dashed #999; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
 
-/* === Section Header 排版 === */
+/* === Section Header === */
 .section-header-row {
     display: flex; 
     align-items: center; 
@@ -143,7 +139,7 @@ body {
     z-index: 5;
 }
 
-/* 取貨時間區塊 (電腦版預設) */
+/* 取貨時間區塊 */
 .pickup-info-center-align {
     display: flex; 
     align-items: center;
@@ -257,7 +253,7 @@ tr.row-warning td { background-color: #ffe6e6 !important; }
 .col-total { width: 10%; }
 .col-op { width: 8%; }
 
-/* [新增] 拖曳行的樣式 */
+/* 拖曳樣式 */
 .draggable-row { cursor: move; }
 .draggable-row:active { cursor: grabbing; }
 .dragging-row {
@@ -271,46 +267,23 @@ tr.row-warning td { background-color: #ffe6e6 !important; }
 .summary-section { margin-top: 10px; border-top: 3px double #000; padding-top: 10px; }
 .grand-total-row { text-align: right; font-size: 1.5rem; font-weight: bold; }
 .text-danger { color: var(--danger-text); font-size: 1.8rem; }
-
-/* [修正] 備註欄溢出問題 */
 .remarks-box { border: 2px solid #000; padding: 10px; margin-top: 10px; width: 100%; box-sizing: border-box; }
 .remarks-box textarea { 
-    width: 100%; 
-    border: none; 
-    resize: vertical; 
-    border-bottom: 1px dashed #ccc; 
-    font-size: 1.1rem;
-    box-sizing: border-box; 
-    min-height: 60px;
+    width: 100%; border: none; resize: vertical; border-bottom: 1px dashed #ccc; 
+    font-size: 1.1rem; box-sizing: border-box; min-height: 60px;
 }
 
-/* [修正] 案件聯絡人與電話 RWD */
 .contact-info { margin-top: 10px; }
 .info-row {
-    display: flex;
-    gap: 15px;
-    flex-wrap: wrap; /* 允許換行 */
-    align-items: center;
+    display: flex; gap: 15px; flex-wrap: wrap; align-items: center;
 }
 .info-row > span {
-    display: flex;
-    align-items: center;
-    white-space: nowrap;
-    flex-grow: 1; /* 讓每個區塊自動延展 */
+    display: flex; align-items: center; white-space: nowrap; flex-grow: 1;
 }
-/* 讓電話欄位自動填滿剩餘空間 */
 .contact-info input {
-    font-size: 1.2rem;
-    font-weight: bold;
-    color: #000;
-    border: none;
-    border-bottom: 1px solid #000;
-    text-align: center;
-    flex-grow: 1; /* 重要：自動延展 */
-    width: auto;  /* 覆蓋原本的固定寬度 */
-    min-width: 120px; /* 確保至少能顯示號碼 */
-    margin-left: 5px;
-    border-radius: 0; /* 聯絡人底線不需圓角 */
+    font-size: 1.2rem; font-weight: bold; color: #000;
+    border: none; border-bottom: 1px solid #000; text-align: center;
+    flex-grow: 1; width: auto; min-width: 120px; margin-left: 5px; border-radius: 0;
 }
 
 .btn-small { font-size: 0.8rem; padding: 2px 5px; border: 1px solid #ccc; background: #f9f9f9; cursor: pointer; }
@@ -319,7 +292,35 @@ tr.row-warning td { background-color: #ffe6e6 !important; }
 .btn-add-section { width: 100%; padding: 10px; background: #e0e0e0; border: 1px solid #999; font-weight: bold; margin-bottom: 20px; cursor: pointer; }
 .btn-icon { background: none; border: none; cursor: pointer; color: #888; font-size: 1.2rem; }
 
-/* === 底部圓形按鈕列 === */
+/* [修正] 控制面板按鈕區塊 - 靠右對齊 */
+.action-buttons { 
+    display: flex; 
+    justify-content: flex-end; /* 關鍵：靠右 */
+    gap: 15px; 
+    margin-top: 20px; 
+    width: 100%;
+}
+
+/* [新增] 控制面板圓形按鈕 (.btn-circle) */
+.btn-circle {
+    width: 50px; height: 50px; 
+    border-radius: 50%;
+    border: none; 
+    background: #444; 
+    color: #fff;
+    font-size: 1.2rem;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    transition: transform 0.1s, background 0.2s;
+}
+.btn-circle:active { transform: scale(0.95); }
+.btn-circle:hover { background: #000; }
+.btn-circle.btn-secondary { background: #888; }
+.btn-circle.btn-secondary:hover { background: #666; }
+
+
+/* === 底部圓形按鈕列 (Fixed) === */
 .footer-controls {
     position: fixed; bottom: 0; left: 0; width: 100%;
     background: rgba(255,255,255,0.98); 
@@ -338,14 +339,11 @@ tr.row-warning td { background-color: #ffe6e6 !important; }
 
 .btn-float {
     background: #333; color: #fff; 
-    width: 60px; height: 60px; /* [修正] 加大按鈕 */
+    width: 60px; height: 60px; /* 手機版統一用 60px */
     border-radius: 50%; 
-    padding: 0; 
-    border: none; cursor: pointer;
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    font-size: 1.4rem; /* [修正] 加大圖示 */
+    padding: 0; border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; 
+    font-size: 1.4rem; 
     box-shadow: 0 3px 8px rgba(0,0,0,0.3); 
     transition: transform 0.1s, background-color 0.2s;
     flex-shrink: 0; 
@@ -367,36 +365,24 @@ tr.row-warning td { background-color: #ffe6e6 !important; }
     border-radius: 8px; 
 }
 .table-scroll { overflow-y: auto; margin-top: 10px; }
-.close { align-self: flex-end; font-size: 28px; cursor: pointer; padding: 10px; } /* 加大關閉區 */
+.close { align-self: flex-end; font-size: 28px; cursor: pointer; padding: 10px; }
 
-/* [新增] 圖片預覽 Modal 樣式修正 */
 #imgPreviewContainer {
-    width: 100%;
-    overflow-y: auto;
-    text-align: center;
-    background: #eee;
-    padding: 10px;
-    box-sizing: border-box;
+    width: 100%; overflow-y: auto; text-align: center;
+    background: #eee; padding: 10px; box-sizing: border-box;
 }
 #imgPreviewContainer img {
-    max-width: 100%;
-    height: auto;
+    max-width: 100%; height: auto;
     box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-    display: block;
-    margin: 0 auto;
+    display: block; margin: 0 auto;
 }
 .modal-tip {
-    font-size: 1rem;
-    color: #333;
-    text-align: center;
-    margin-bottom: 10px;
-    background: #fff3cd;
-    border: 1px solid #ffeeba;
-    padding: 8px;
-    border-radius: 4px;
+    font-size: 1rem; color: #333; text-align: center;
+    margin-bottom: 10px; background: #fff3cd;
+    border: 1px solid #ffeeba; padding: 8px; border-radius: 4px;
 }
 
-/* === Mobile RWD (手機版專用調整) === */
+/* === Mobile RWD === */
 @media screen and (max-width: 768px) {
     .mobile-hide { display: none; }
     
@@ -408,53 +394,36 @@ tr.row-warning td { background-color: #ffe6e6 !important; }
     .jp-table th.col-item { width: 42%; } 
 
     .jp-table th, .jp-table td, .jp-table input, .jp-table select {
-        font-size: 0.85rem !important;
-        padding: 4px 1px; 
+        font-size: 0.85rem !important; padding: 4px 1px; 
     }
     
     .section-header-row {
-        gap: 5px;
-        min-height: auto; 
-        justify-content: flex-start;
-        align-items: flex-start;
-        margin-bottom: 2px;
-        padding-bottom: 2px;
+        gap: 5px; min-height: auto; 
+        justify-content: flex-start; align-items: flex-start;
+        margin-bottom: 2px; padding-bottom: 2px;
     }
     
     .header-left { flex-shrink: 0; }
     .header-left h2 { font-size: 1.1rem; }
 
     .pickup-info-center-align {
-        width: 100%; 
-        order: 5;    
-        margin-left: 0; 
-        margin-top: 0px; 
-        margin-bottom: 5px; 
-        justify-content: center; 
-        font-size: 0.95rem;
+        width: 100%; order: 5; margin-left: 0; margin-top: 0px; margin-bottom: 5px; 
+        justify-content: center; font-size: 0.95rem;
     }
     
     .modal-content { width: 95%; margin: 10% auto; padding: 10px; }
     #price-list-table th, #price-list-table td { font-size: 0.9rem; padding: 4px; }
     
-    /* [修正] 手機版底部按鈕優化 */
     .footer-controls { 
-        padding-bottom: calc(15px + env(safe-area-inset-bottom)); /* 避開 Home Bar */
+        padding-bottom: calc(15px + env(safe-area-inset-bottom)); 
         padding-top: 15px;
         justify-content: space-evenly; 
     }
-    
-    .btn-float {
-        width: 60px; height: 60px; 
-        font-size: 1.4rem;
-    }
-    
-    /* [修正] 聯絡人區塊在手機上垂直排列 */
     .info-row { flex-direction: column; align-items: stretch; }
     .info-row > span { margin-bottom: 8px; }
 }
 
-/* === Print Mode (列印版配置) === */
+/* === Print Mode === */
 @media print {
     @page { size: A4; margin: 5mm; }
     body { background: #fff; zoom: 95%; -webkit-print-color-adjust: exact; }
@@ -473,41 +442,29 @@ tr.row-warning td { background-color: #ffe6e6 !important; }
     .section-container { page-break-inside: avoid; margin-bottom: 10px; }
     
     .section-header-row {
-        flex-wrap: nowrap !important;
-        padding-right: 0; 
-        justify-content: flex-start !important; 
-        align-items: center;
-        border-bottom: 1px solid #000;
-        margin-bottom: 5px;
-        position: static; 
+        flex-wrap: nowrap !important; padding-right: 0; 
+        justify-content: flex-start !important; align-items: center;
+        border-bottom: 1px solid #000; margin-bottom: 5px; position: static; 
     }
     
     .header-left .date-display-wrapper { display: none !important; }
     .header-left h2 { font-size: 14pt !important; } 
     
     .pickup-info-center-align {
-        background-color: #e0e0e0 !important; 
-        -webkit-print-color-adjust: exact; 
-        padding: 2px 10px !important;
-        margin: 0 0 0 15px !important; 
-        width: auto !important; 
-        order: unset !important; 
-        font-size: 12pt !important; 
-        display: flex !important;
-        flex-direction: row !important; 
-        flex-wrap: nowrap !important;   
-        white-space: nowrap !important;
+        background-color: #e0e0e0 !important; -webkit-print-color-adjust: exact; 
+        padding: 2px 10px !important; margin: 0 0 0 15px !important; 
+        width: auto !important; order: unset !important; font-size: 12pt !important; 
+        display: flex !important; flex-direction: row !important; 
+        flex-wrap: nowrap !important; white-space: nowrap !important;
         justify-content: flex-start !important;
     }
     
     body.fax-mode .pickup-info-center-align {
         background-color: transparent !important;
-        border: 1px solid #000 !important;
-        padding: 2px 10px !important;
+        border: 1px solid #000 !important; padding: 2px 10px !important;
     }
     body.fax-mode .jp-table th {
-        background-color: transparent !important;
-        border-bottom: 2px solid #000 !important;
+        background-color: transparent !important; border-bottom: 2px solid #000 !important;
     }
     
     .header-right { display: none !important; }
