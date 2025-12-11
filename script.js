@@ -1,6 +1,6 @@
 /**
  * 檔案：script.js
- * 版本：2025-12-08 Final Fix: Removed Hardcoded "Jiao Wei Fan"
+ * 版本：2025-12-08 Final Logic + iOS Fixes
  */
 
 // ==========================================
@@ -43,8 +43,6 @@ async function initData() {
         
     } catch (error) {
         console.error("載入失敗:", error);
-        // 若在本地無法 fetch，不彈出煩人的 alert，僅在 console 報錯
-        // 實際運作需依賴 Live Server 或 GitHub Pages
     }
 }
 
@@ -265,9 +263,7 @@ function generateMealsSection(inputs) {
     const tbody = document.getElementById('meals-body');
     tbody.innerHTML = ''; 
 
-    // [設定區域] 豎靈餐點邏輯切換方案
-    // 'A': 固定為「五菜一飯(素)」
-    // 'B': 跟隨上方「葷/素」設定
+    // 'A': 固定為「五菜一飯(素)」, 'B': 跟隨上方「葷/素」
     const MEAL_SCHEME = 'B'; 
 
     let mealItemSpec = "";
@@ -277,12 +273,10 @@ function generateMealsSection(inputs) {
         mealItemSpec = inputs.diet === '素' ? "五菜一飯(素)" : "五菜一飯(葷)";
     }
     
-    // [設定區域] 豎靈預設數量 
-    // 您可以在此設定初始數量，目前設定為 0 (不顯示，需手動調整)
+    // 豎靈預設數量 (0=不顯示)
     let item1_Qty = 0; // 白飯、鹹蛋
     let item2_Qty = 0; // 五菜一飯
 
-    // 這裡保留判斷結構，未來若要針對地點/葷素給不同預設值，直接修改數字即可
     if(inputs.location === '自宅') {
         if(inputs.diet === '素') { item1_Qty = 0; item2_Qty = 0; } 
         else { item1_Qty = 0; item2_Qty = 0; }
@@ -291,12 +285,9 @@ function generateMealsSection(inputs) {
         else { item1_Qty = 0; item2_Qty = 0; }
     }
 
-    // 產生「豎靈」資料列 (日期統一為接案日)
-    // 注意：這裡只會產生「豎靈」，不再產生「腳尾飯」
     addMealRowData(inputs.receiveDate, "豎靈", "白飯、鹹蛋", item1_Qty);
     addMealRowData(inputs.receiveDate, "豎靈", mealItemSpec, item2_Qty);
 
-    // 產生其他儀式飯菜 (來自頭七、法事、出殯的 JSON 設定)
     pendingMealItems.forEach(p => {
         let currentPickup = p.date;
         const ritualMap = { '頭七': 'head7', '法事': 'ritual', '出殯': 'funeral' };
@@ -307,7 +298,6 @@ function generateMealsSection(inputs) {
         addMealRowData(currentPickup || p.date, p.ritual, p.item, p.qty);
     });
 
-    // 合併相同日期與儀式名稱的儲存格
     mergeTableCells(tbody);
 }
 
@@ -315,14 +305,10 @@ function generateFruitSection(inputs) {
     const tbody = document.getElementById('fruit-body');
     tbody.innerHTML = ''; 
 
-    // 1. 接案日當天 (預設數量 0)
     const d0 = addDays(inputs.receiveDate, 0); 
     addFruitRow(d0, 0);
 
-    // 2. 接案日 + 2天
     const d1 = addDays(inputs.receiveDate, 2);
-    
-    // 3. 接案日 + 5天
     const d2 = addDays(inputs.receiveDate, 5);
     
     addFruitRow(d1, 1);
@@ -416,7 +402,6 @@ function createRitualDOM(key) {
     section.id = `section-${key}`;
     section.setAttribute('draggable', 'true');
     
-    // HTML 結構調整：Header-Left -> Pickup-Info -> Header-Right
     section.innerHTML = `
       <div class="section-header-row">
         <div class="header-left">
@@ -511,6 +496,9 @@ function mergeTableCells(tbody) {
 }
 
 function addMealRowData(date, ritual, item, qty) {
+    // 若數量為 0，則不生成此行
+    if (qty <= 0) return; 
+
     const tbody = document.getElementById('meals-body');
     const info = getPriceInfo(item);
     const tr = document.createElement('tr');
@@ -720,10 +708,113 @@ function getDragAfterElement(container, y) {
     }, { offset: Number.NEGATIVE_INFINITY }).element;
 }
 
-// 新增功能：分享圖片 (支援 Line)
+// 傳真功能：切換模式並列印
+function printFax() {
+    document.body.classList.add('fax-mode');
+    window.print();
+    // 列印對話框關閉後還原
+    window.addEventListener('afterprint', () => {
+        document.body.classList.remove('fax-mode');
+    }, { once: true });
+    // 保險起見 2 秒後還原
+    setTimeout(() => {
+        document.body.classList.remove('fax-mode');
+    }, 2000);
+}
+
+function downloadPDF() { window.print(); }
+
+/**
+ * 修正版：針對 iOS 裝置的圖片生成與分享邏輯
+ * 1. 自動偵測 iOS
+ * 2. iOS 不支援自動下載，改為開新視窗預覽
+ * 3. 降低圖片解析度 (Scale) 防止 iPhone 記憶體崩潰
+ */
+function downloadImage() {
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    const panel = document.getElementById('control-panel-section');
+    const area = document.getElementById('capture-area');
+    const footer = document.querySelector('.footer-controls'); 
+    
+    const originalPanelDisplay = panel.style.display;
+    const originalFooterDisplay = footer ? footer.style.display : '';
+    const originalWidth = area.style.width;
+    const originalMargin = area.style.margin;
+    const originalMaxWidth = area.style.maxWidth;
+    const originalTransform = area.style.transform;
+    
+    panel.style.display = 'none';
+    if(footer) footer.style.display = 'none';
+    area.style.width = '1100px';
+    area.style.maxWidth = 'none'; 
+    area.style.margin = '0'; 
+    area.style.transform = 'none'; 
+    window.scrollTo(0, 0);
+
+    // iOS 記憶體限制較嚴格，降低 Scale 避免當機
+    const scaleValue = isIOS ? 1.5 : 2;
+
+    const options = {
+        scale: scaleValue, 
+        useCORS: true, 
+        width: 1100, 
+        windowWidth: 1280, 
+        x: 0, 
+        y: 0, 
+        scrollX: 0, 
+        scrollY: 0,
+        backgroundColor: "#ffffff",
+        logging: false
+    };
+
+    html2canvas(area, options).then(canvas => {
+        const name = document.getElementById('caseName').value || '訂購單';
+        const now = new Date();
+        const timeStr = `${now.getMonth()+1}${now.getDate()}_${now.getHours()}${now.getMinutes()}`;
+        const fileName = `訂購單_${name}_${timeStr}.png`;
+
+        if (isIOS) {
+            // iOS 專用邏輯：開新視窗讓使用者長按儲存
+            const imgData = canvas.toDataURL("image/png");
+            const newWin = window.open();
+            if (newWin) {
+                newWin.document.write(`<img src="${imgData}" style="width:100%"/>`);
+                newWin.document.title = "長按圖片儲存";
+                alert("圖片已生成！請長按圖片並選擇「加入照片」來儲存。");
+            } else {
+                alert("請允許彈出式視窗以檢視圖片。");
+            }
+        } else {
+            // 電腦/Android：自動下載
+            const a = document.createElement('a');
+            a.download = fileName;
+            a.href = canvas.toDataURL("image/png");
+            a.click();
+        }
+        restoreStyles();
+    }).catch(err => {
+        console.error("截圖失敗:", err);
+        alert(`圖片生成失敗：${err.message}`);
+        restoreStyles();
+    });
+
+    function restoreStyles() {
+        panel.style.display = originalPanelDisplay;
+        if(footer) footer.style.display = originalFooterDisplay;
+        area.style.width = originalWidth;
+        area.style.maxWidth = originalMaxWidth;
+        area.style.margin = originalMargin;
+        area.style.transform = originalTransform;
+    }
+}
+
+/**
+ * 分享功能 (Line/Messenger)
+ * iOS 支援度較高，若失敗則回退到 downloadImage
+ */
 function shareImage() {
     if (!navigator.canShare) {
-        alert("您的瀏覽器不支援原生分享功能，請使用「存為圖片」後再手動傳送。");
+        alert("您的瀏覽器不支援原生分享功能，請使用「存為圖片」按鈕。");
         return;
     }
 
@@ -746,8 +837,11 @@ function shareImage() {
     area.style.transform = 'none'; 
     window.scrollTo(0, 0);
 
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    const scaleValue = isIOS ? 1.5 : 2;
+
     const options = {
-        scale: 2, 
+        scale: scaleValue, 
         useCORS: true, 
         width: 1100, 
         windowWidth: 1280, 
@@ -761,26 +855,24 @@ function shareImage() {
     html2canvas(area, options).then(canvas => {
         canvas.toBlob(async (blob) => {
             const name = document.getElementById('caseName').value || '訂購單';
-            const now = new Date();
-            const timeStr = `${now.getMonth()+1}${now.getDate()}_${now.getHours()}${now.getMinutes()}`;
-            const fileName = `訂購單_${name}_${timeStr}.png`;
+            const fileName = `Order_${name}.png`;
             const file = new File([blob], fileName, { type: "image/png" });
             const shareData = {
                 files: [file],
                 title: '祭品訂購單',
-                text: `案件：${name} 的祭品訂購單`
             };
 
             try {
                 if (navigator.canShare(shareData)) {
                     await navigator.share(shareData);
                 } else {
-                    alert("您的裝置不支援圖片分享，請改用「存為圖片」。");
+                    alert("您的裝置不支援圖片分享，將嘗試開啟圖片...");
+                    downloadImage(); // 回退機制
                 }
             } catch (err) {
                 if (err.name !== 'AbortError') {
                     console.error("分享失敗:", err);
-                    alert("分享失敗，請稍後再試。");
+                    alert("分享被取消或失敗，請重試。");
                 }
             } finally {
                 restoreStyles();
@@ -792,73 +884,6 @@ function shareImage() {
         restoreStyles();
     });
 
-    function restoreStyles() {
-        panel.style.display = originalPanelDisplay;
-        if(footer) footer.style.display = originalFooterDisplay;
-        area.style.width = originalWidth;
-        area.style.maxWidth = originalMaxWidth;
-        area.style.margin = originalMargin;
-        area.style.transform = originalTransform;
-    }
-}
-
-// 傳真功能：切換模式並列印
-function printFax() {
-    document.body.classList.add('fax-mode');
-    window.print();
-    window.addEventListener('afterprint', () => {
-        document.body.classList.remove('fax-mode');
-    }, { once: true });
-    // 預防沒有觸發 afterprint 的保險機制
-    setTimeout(() => {
-        document.body.classList.remove('fax-mode');
-    }, 2000);
-}
-
-function downloadPDF() { window.print(); }
-
-function downloadImage() {
-    const panel = document.getElementById('control-panel-section');
-    const area = document.getElementById('capture-area');
-    const footer = document.querySelector('.footer-controls'); 
-    const originalPanelDisplay = panel.style.display;
-    const originalFooterDisplay = footer ? footer.style.display : '';
-    const originalWidth = area.style.width;
-    const originalMargin = area.style.margin;
-    const originalMaxWidth = area.style.maxWidth;
-    const originalTransform = area.style.transform;
-    panel.style.display = 'none';
-    if(footer) footer.style.display = 'none';
-    area.style.width = '1100px';
-    area.style.maxWidth = 'none'; 
-    area.style.margin = '0'; 
-    area.style.transform = 'none'; 
-    window.scrollTo(0, 0);
-    const options = {
-        scale: 2, 
-        useCORS: true, 
-        width: 1100, 
-        windowWidth: 1280, 
-        x: 0, 
-        y: 0, 
-        scrollX: 0, 
-        scrollY: 0,
-        backgroundColor: "#ffffff"
-    };
-    html2canvas(area, options).then(canvas => {
-        const a = document.createElement('a');
-        const name = document.getElementById('caseName').value || '訂購單';
-        const now = new Date();
-        const timeStr = `${now.getMonth()+1}${now.getDate()}_${now.getHours()}${now.getMinutes()}`;
-        a.download = `訂購單_${name}_${timeStr}.png`;
-        a.href = canvas.toDataURL("image/png");
-        a.click();
-        restoreStyles();
-    }).catch(err => {
-        console.error("截圖失敗:", err);
-        alert("圖片生成失敗，請稍後再試。");
-        restoreStyles();
-    });
     function restoreStyles() {
         panel.style.display = originalPanelDisplay;
         if(footer) footer.style.display = originalFooterDisplay;
