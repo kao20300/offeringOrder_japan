@@ -291,6 +291,7 @@ tr.row-warning td { background-color: #ffe6e6 !important; }
 .btn-add { background: #fff; border: 1px dashed #999; cursor: pointer; color: #555; font-weight: bold; padding: 6px 12px; }
 .btn-add-section { width: 100%; padding: 10px; background: #e0e0e0; border: 1px solid #999; font-weight: bold; margin-bottom: 20px; cursor: pointer; }
 .btn-icon { background: none; border: none; cursor: pointer; color: #888; font-size: 1.2rem; }
+.btn-icon:hover { color: #d00; }
 
 /* [修正] 控制面板按鈕區塊 - 靠右對齊 */
 .action-buttons { 
@@ -335,6 +336,16 @@ tr.row-warning td { background-color: #ffe6e6 !important; }
     white-space: nowrap;
     -webkit-overflow-scrolling: touch; 
 }
+/* [修正] 手機版底部按鈕優化 */
+    .footer-controls { 
+        padding-bottom: calc(15px + env(safe-area-inset-bottom)); 
+        padding-top: 15px;
+        justify-content: space-evenly; 
+        
+        /* ▼▼▼ 請修改這裡的數值 ▼▼▼ */
+        padding-left: 40px;  /* 原本 20px，數字越大，按鈕越往中間集中 */
+        padding-right: 40px; /* 原本 20px，建議左右數值設一樣 */
+    }
 .footer-controls::-webkit-scrollbar { display: none; }
 
 .btn-float {

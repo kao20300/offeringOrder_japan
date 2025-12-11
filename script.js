@@ -693,7 +693,8 @@ function downloadImage() {
     area.style.transform = 'none'; 
     window.scrollTo(0, 0);
 
-    const scaleValue = isIOS ? 1 : 2; // iOS 改為 1
+    // iOS 使用 scale: 2 (若仍閃退可改回 1.5)
+    const scaleValue = isIOS ? 2 : 2; // iOS 改為 2
 
     const options = {
         scale: scaleValue, 
