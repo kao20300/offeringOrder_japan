@@ -1,112 +1,60 @@
 /**
  * 檔案：script.js
- * 版本：2025-12-08 Final Logic: Meal Scheme Toggle (A/B)
+ * 版本：2025-12-08 Final Fix: Removed Hardcoded "Jiao Wei Fan"
  */
 
 // ==========================================
-// 1. JSON Configuration Store (Data Source)
+// 1. Global Variables & Data Initialization
 // ==========================================
 
-const PRICE_LIST_SOURCE = {
-  "metadata": { "title": "品項單位及單價預設值", "data_type": "PRICE_LIST", "version": "1.0.0" },
-  "data": {
-    "綜合果(果品)": { "單位": "盤", "單價": 300 },
-    "小單果(果品)": { "單位": "盤", "單價": 100 },
-    "大單果(果品)": { "單位": "盤", "單價": 200 },
-    "三小盤(果品)": { "單位": "組", "單價": 300 },
-    "三大盤(果品)": { "單位": "組", "單價": 600 },
-    "獻果用蘋果(果品)": { "單位": "盤", "單價": 100 },
-    "白飯、鹹蛋": { "單位": "組", "單價": 35 },
-    "紅圓、發糕": { "單位": "盒", "單價": 120 },
-    "蛋糕": { "單位": "個", "單價": 90 },
-    "湯圓": { "單位": "組", "單價": 0 },
-    "辭生飯菜": { "單位": "組", "單價": 0 },
-    "五菜一飯(素)": { "單位": "組", "單價": 180 },
-    "六菜一飯(素)": { "單位": "組", "單價": 200 },
-    "五菜一飯(葷)": { "單位": "組", "單價": 180 },
-    "六菜一飯(葷)": { "單位": "組", "單價": 200 },
-    "葷三牲": { "單位": "組", "單價": 820 },
-    "葷五牲": { "單位": "付", "單價": 2000 },
-    "小素三牲": { "單位": "付", "單價": 280 },
-    "大素三牲": { "單位": "付", "單價": 625 }
-  }
-};
-
-const BASE_OFFERING_SOURCE = {
-  "metadata": { "title": "基本祭品數量邏輯", "data_type": "BASE_OFFERING_LOGIC", "version": "1.2.0" },
-  "data": {
-    "頭七": {
-      "佛教": {
-        "簡易": { "葷": { "三小盤(果品)": 1, "紅圓、發糕": 1, "葷三牲": 1, "五菜一飯(葷)": 1 }, "素": { "三小盤(果品)": 1, "紅圓、發糕": 1, "小素三牲": 1, "五菜一飯(素)": 1 } },
-        "半日": { "葷": { "三小盤(果品)": 1, "紅圓、發糕": 1, "葷三牲": 1, "五菜一飯(葷)": 1 }, "素": { "三小盤(果品)": 1, "紅圓、發糕": 1, "小素三牲": 1, "五菜一飯(素)": 1 } },
-        "全日": { "葷": { "三小盤(果品)": 1, "紅圓、發糕": 1, "葷三牲": 1, "五菜一飯(葷)": 1 }, "素": { "三小盤(果品)": 1, "紅圓、發糕": 1, "小素三牲": 1, "五菜一飯(素)": 1 } }
-      },
-      "道教": {
-        "簡易": { "葷": { "三小盤(果品)": 1, "紅圓、發糕": 1, "葷三牲": 1, "五菜一飯(葷)": 1 }, "素": { "三小盤(果品)": 1, "紅圓、發糕": 1, "小素三牲": 1, "五菜一飯(素)": 1 } },
-        "拜經": { "葷": { "三小盤(果品)": 1, "紅圓、發糕": 1, "葷三牲": 1, "五菜一飯(葷)": 1 }, "素": { "三小盤(果品)": 1, "紅圓、發糕": 1, "小素三牲": 1, "五菜一飯(素)": 1 } },
-        "冥路": { "葷": { "三小盤(果品)": 1, "紅圓、發糕": 1, "葷三牲": 1, "五菜一飯(葷)": 1 }, "素": { "三小盤(果品)": 1, "紅圓、發糕": 1, "小素三牲": 1, "五菜一飯(素)": 1 } },
-        "午夜": { "葷": { "三小盤(果品)": 1, "紅圓、發糕": 1, "葷三牲": 1, "五菜一飯(葷)": 1 }, "素": { "三小盤(果品)": 1, "紅圓、發糕": 1, "小素三牲": 1, "五菜一飯(素)": 1 } }
-      }
-    },
-    "法事": {
-      "佛教": {
-        "簡易": { "葷": { "三小盤(果品)": 1, "紅圓、發糕": 1, "葷三牲": 1, "五菜一飯(葷)": 1 }, "素": { "三小盤(果品)": 1, "紅圓、發糕": 1, "小素三牲": 1, "五菜一飯(素)": 1 } },
-        "半日": { "葷": { "三小盤(果品)": 1, "三大盤(果品)": 1, "紅圓、發糕": 1, "葷三牲": 1, "五菜一飯(葷)": 1, "五菜一飯(素)": 1 }, "素": { "三小盤(果品)": 1, "三大盤(果品)": 1, "紅圓、發糕": 1, "小素三牲": 1, "五菜一飯(素)": 2 } },
-        "全日": { "葷": { "三小盤(果品)": 1, "三大盤(果品)": 1, "紅圓、發糕": 1, "葷三牲": 1, "五菜一飯(葷)": 1, "五菜一飯(素)": 1 }, "素": { "三小盤(果品)": 1, "三大盤(果品)": 1, "紅圓、發糕": 1, "小素三牲": 1, "五菜一飯(素)": 2 } }
-      },
-      "道教": {
-        "簡易": { "葷": { "三小盤(果品)": 1, "紅圓、發糕": 1, "葷三牲": 1, "五菜一飯(葷)": 1 }, "素": { "三小盤(果品)": 1, "紅圓、發糕": 1, "小素三牲": 1, "五菜一飯(素)": 1 } },
-        "拜經": { "葷": { "綜合果(果品)": 4, "三小盤(果品)": 1, "紅圓、發糕": 1, "葷三牲": 1, "五菜一飯(葷)": 2 }, "素": { "綜合果(果品)": 4, "三小盤(果品)": 1, "紅圓、發糕": 1, "小素三牲": 1, "五菜一飯(素)": 2 } },
-        "冥路": { "葷": { "綜合果(果品)": 5, "三小盤(果品)": 1, "紅圓、發糕": 1, "葷三牲": 2, "五菜一飯(葷)": 2 }, "素": { "綜合果(果品)": 5, "三小盤(果品)": 1, "紅圓、發糕": 1, "小素三牲": 2, "五菜一飯(素)": 2 } },
-        "午夜": { "葷": { "綜合果(果品)": 7, "三小盤(果品)": 1, "紅圓、發糕": 1, "葷三牲": 3, "五菜一飯(葷)": 2 }, "素": { "綜合果(果品)": 7, "三小盤(果品)": 1, "紅圓、發糕": 1, "小素三牲": 3, "五菜一飯(素)": 2 } }
-      }
-    },
-    "出殯": {
-      "佛教": {
-        "簡易": { "葷": { "綜合果(果品)": 1, "三小盤(果品)": 2, "獻果用蘋果(果品)": 1, "紅圓、發糕": 2, "葷三牲": 1, "五菜一飯(葷)": 3 }, "素": { "綜合果(果品)": 1, "三小盤(果品)": 2, "獻果用蘋果(果品)": 1, "紅圓、發糕": 2, "小素三牲": 1, "五菜一飯(素)": 3 } },
-        "簡易(自宅)": { "葷": { "綜合果(果品)": 1, "三小盤(果品)": 2, "獻果用蘋果(果品)": 1, "紅圓、發糕": 2, "葷三牲": 1, "五菜一飯(葷)": 3, "蛋糕": 1 }, "素": { "綜合果(果品)": 1, "三小盤(果品)": 2, "獻果用蘋果(果品)": 1, "紅圓、發糕": 2, "小素三牲": 1, "五菜一飯(素)": 3, "蛋糕": 1 } },
-        "半日": { "葷": { "綜合果(果品)": 1, "三小盤(果品)": 1, "三大盤(果品)": 1, "獻果用蘋果(果品)": 1, "紅圓、發糕": 2, "葷三牲": 1, "五菜一飯(葷)": 3 }, "素": { "綜合果(果品)": 1, "三小盤(果品)": 1, "三大盤(果品)": 1, "獻果用蘋果(果品)": 1, "紅圓、發糕": 2, "大素三牲": 1, "五菜一飯(素)": 3 } },
-        "半日(自宅)": { "葷": { "綜合果(果品)": 1, "三小盤(果品)": 1, "三大盤(果品)": 1, "獻果用蘋果(果品)": 1, "紅圓、發糕": 2, "葷三牲": 1, "五菜一飯(葷)": 3, "蛋糕": 1 }, "素": { "綜合果(果品)": 1, "三小盤(果品)": 1, "三大盤(果品)": 1, "獻果用蘋果(果品)": 1, "紅圓、發糕": 2, "大素三牲": 1, "五菜一飯(素)": 3, "蛋糕": 1 } },
-        "全日": { "葷": { "綜合果(果品)": 1, "三小盤(果品)": 1, "三大盤(果品)": 1, "獻果用蘋果(果品)": 1, "紅圓、發糕": 2, "葷三牲": 1, "五菜一飯(葷)": 3 }, "素": { "綜合果(果品)": 1, "三小盤(果品)": 1, "三大盤(果品)": 1, "獻果用蘋果(果品)": 1, "紅圓、發糕": 2, "大素三牲": 1, "五菜一飯(素)": 3 } },
-        "全日(自宅)": { "葷": { "綜合果(果品)": 1, "三小盤(果品)": 1, "三大盤(果品)": 1, "獻果用蘋果(果品)": 1, "紅圓、發糕": 2, "葷三牲": 1, "五菜一飯(葷)": 3, "蛋糕": 1 }, "素": { "綜合果(果品)": 1, "三小盤(果品)": 1, "三大盤(果品)": 1, "獻果用蘋果(果品)": 1, "紅圓、發糕": 2, "大素三牲": 1, "五菜一飯(素)": 3, "蛋糕": 1 } }
-      },
-      "道教": {
-        "簡易": { "葷": { "綜合果(果品)": 1, "三小盤(果品)": 2, "獻果用蘋果(果品)": 1, "紅圓、發糕": 2, "葷三牲": 1, "五菜一飯(葷)": 3 }, "素": { "綜合果(果品)": 1, "三小盤(果品)": 2, "獻果用蘋果(果品)": 1, "紅圓、發糕": 2, "小素三牲": 1, "五菜一飯(素)": 3 } },
-        "簡易(自宅)": { "葷": { "綜合果(果品)": 1, "三小盤(果品)": 2, "獻果用蘋果(果品)": 1, "紅圓、發糕": 2, "葷三牲": 1, "五菜一飯(葷)": 3, "蛋糕": 1 }, "素": { "綜合果(果品)": 1, "三小盤(果品)": 2, "獻果用蘋果(果品)": 1, "紅圓、發糕": 2, "小素三牲": 1, "五菜一飯(素)": 3, "蛋糕": 1 } },
-        "拜經": { "葷": { "綜合果(果品)": 1, "三小盤(果品)": 1, "三大盤(果品)": 1, "獻果用蘋果(果品)": 1, "紅圓、發糕": 2, "葷三牲": 1, "五菜一飯(葷)": 3 }, "素": { "綜合果(果品)": 1, "三小盤(果品)": 1, "三大盤(果品)": 1, "獻果用蘋果(果品)": 1, "紅圓、發糕": 2, "大素三牲": 1, "五菜一飯(素)": 3 } },
-        "拜經(自宅)": { "葷": { "綜合果(果品)": 1, "三小盤(果品)": 1, "三大盤(果品)": 1, "獻果用蘋果(果品)": 1, "紅圓、發糕": 2, "葷三牲": 1, "五菜一飯(葷)": 3, "蛋糕": 1 }, "素": { "綜合果(果品)": 1, "三小盤(果品)": 1, "三大盤(果品)": 1, "獻果用蘋果(果品)": 1, "紅圓、發糕": 2, "大素三牲": 1, "五菜一飯(素)": 3, "蛋糕": 1 } },
-        "冥路": { "葷": { "綜合果(果品)": 1, "三小盤(果品)": 1, "三大盤(果品)": 1, "獻果用蘋果(果品)": 1, "紅圓、發糕": 2, "葷三牲": 1, "五菜一飯(葷)": 3 }, "素": { "綜合果(果品)": 1, "三小盤(果品)": 1, "三大盤(果品)": 1, "獻果用蘋果(果品)": 1, "紅圓、發糕": 2, "大素三牲": 1, "五菜一飯(素)": 3 } },
-        "冥路(自宅)": { "葷": { "綜合果(果品)": 1, "三小盤(果品)": 1, "三大盤(果品)": 1, "獻果用蘋果(果品)": 1, "紅圓、發糕": 2, "葷三牲": 1, "五菜一飯(葷)": 3, "蛋糕": 1 }, "素": { "綜合果(果品)": 1, "三小盤(果品)": 1, "三大盤(果品)": 1, "獻果用蘋果(果品)": 1, "紅圓、發糕": 2, "大素三牲": 1, "五菜一飯(素)": 3, "蛋糕": 1 } },
-        "午夜": { "葷": { "綜合果(果品)": 1, "三小盤(果品)": 1, "三大盤(果品)": 1, "獻果用蘋果(果品)": 1, "紅圓、發糕": 2, "葷三牲": 1, "五菜一飯(葷)": 3 }, "素": { "綜合果(果品)": 1, "三小盤(果品)": 1, "三大盤(果品)": 1, "獻果用蘋果(果品)": 1, "紅圓、發糕": 2, "大素三牲": 1, "五菜一飯(素)": 3 } },
-        "午夜(自宅)": { "葷": { "綜合果(果品)": 1, "三小盤(果品)": 1, "三大盤(果品)": 1, "獻果用蘋果(果品)": 1, "紅圓、發糕": 2, "葷三牲": 1, "五菜一飯(葷)": 3, "蛋糕": 1 }, "素": { "綜合果(果品)": 1, "三小盤(果品)": 1, "三大盤(果品)": 1, "獻果用蘋果(果品)": 1, "紅圓、發糕": 2, "大素三牲": 1, "五菜一飯(素)": 3, "蛋糕": 1 } }
-      }
-    }
-  }
-};
-
-const ANHS_ADDITIONAL_SOURCE = {
-  "metadata": { "title": "安神主祭品", "trigger_condition": "HasAnShenZhu_True" },
-  "data": {
-    "葷": { "三小盤(果品)": 1, "紅圓、發糕": 1, "葷三牲": 1, "五菜一飯(葷)": 1 },
-    "素": { "三小盤(果品)": 1, "紅圓、發糕": 1, "小素三牲": 1, "五菜一飯(素)": 1 }
-  }
-};
-
-// 提取實際數據
-const PRICE_LIST = PRICE_LIST_SOURCE.data;
-const BASE_OFFERING_LOGIC = BASE_OFFERING_SOURCE.data;
-const ANHS_LOGIC = ANHS_ADDITIONAL_SOURCE.data;
+let PRICE_LIST = {};
+let BASE_OFFERING_LOGIC = {};
+let ANHS_LOGIC = {};
 
 let pendingMealItems = []; 
+
+// 程式啟動時，先去抓取三個 JSON 檔案
+async function initData() {
+    try {
+        console.log("正在載入外部資料...");
+        
+        const [priceRes, logicRes, anhsRes] = await Promise.all([
+            fetch('./price_list.json'),
+            fetch('./base_offering_logic.json'),
+            fetch('./anhs_additional_logic.json')
+        ]);
+
+        if (!priceRes.ok) throw new Error("無法讀取 price_list.json");
+        if (!logicRes.ok) throw new Error("無法讀取 base_offering_logic.json");
+        if (!anhsRes.ok) throw new Error("無法讀取 anhs_additional_logic.json");
+
+        const priceJson = await priceRes.json();
+        const logicJson = await logicRes.json();
+        const anhsJson = await anhsRes.json();
+
+        PRICE_LIST = priceJson.data;
+        BASE_OFFERING_LOGIC = logicJson.data;
+        ANHS_LOGIC = anhsJson.data;
+
+        console.log("資料載入成功！開始初始化介面...");
+
+        initDropdownsFromJSON(); 
+        initRitualSections(); 
+        
+    } catch (error) {
+        console.error("載入失敗:", error);
+        // 若在本地無法 fetch，不彈出煩人的 alert，僅在 console 報錯
+        // 實際運作需依賴 Live Server 或 GitHub Pages
+    }
+}
 
 // ==========================================
 // 2. Initialization & Listeners
 // ==========================================
 
 window.addEventListener('DOMContentLoaded', () => {
-    initDropdownsFromJSON(); 
-    initRitualSections(); 
     setPrintDate(); 
+    initData();     
     
     const caseNameInput = document.getElementById('caseName');
     if(caseNameInput) {
@@ -127,14 +75,12 @@ window.addEventListener('DOMContentLoaded', () => {
             if (e.target.classList.contains('row-item')) updateRowUnitPrice(e.target);
             
             if (e.target.classList.contains('date-input-hidden')) {
-                // 確保文字更新
                 const wrapper = e.target.closest('.date-cell-wrapper') || e.target.closest('.date-display-wrapper');
                 if(wrapper) {
                      const textSpan = wrapper.querySelector('.date-display-text');
                      if(textSpan) textSpan.innerText = formatDisplayDate(e.target.value);
                 }
                 
-                // 換果驗證
                 if (e.target.classList.contains('fruit-date-input')) {
                      validateFruitDates();
                 }
@@ -151,18 +97,18 @@ window.addEventListener('DOMContentLoaded', () => {
 
 function initDropdownsFromJSON() {
     const religionSelect = document.getElementById('religion');
+    if (!BASE_OFFERING_LOGIC["頭七"]) return;
+    
     const sampleRitual = BASE_OFFERING_LOGIC["頭七"];
-    if (sampleRitual) {
-        religionSelect.innerHTML = '<option value="">請選擇</option>';
-        Object.keys(sampleRitual).forEach(rel => {
-            if(!rel.startsWith('_')) {
-                const opt = document.createElement('option');
-                opt.value = rel;
-                opt.innerText = rel;
-                religionSelect.appendChild(opt);
-            }
-        });
-    }
+    religionSelect.innerHTML = '<option value="">請選擇</option>';
+    Object.keys(sampleRitual).forEach(rel => {
+        if(!rel.startsWith('_')) {
+            const opt = document.createElement('option');
+            opt.value = rel;
+            opt.innerText = rel;
+            religionSelect.appendChild(opt);
+        }
+    });
 }
 
 function initRitualSections() {
@@ -179,9 +125,9 @@ function updateSpecs() {
     const religion = document.getElementById('religion').value;
     const specSelect = document.getElementById('specification');
     specSelect.innerHTML = ''; 
-    const sampleLogic = BASE_OFFERING_LOGIC["頭七"];
-    if (religion && sampleLogic && sampleLogic[religion]) {
-        const specs = Object.keys(sampleLogic[religion]);
+    
+    if (religion && BASE_OFFERING_LOGIC["頭七"] && BASE_OFFERING_LOGIC["頭七"][religion]) {
+        const specs = Object.keys(BASE_OFFERING_LOGIC["頭七"][religion]);
         specs.forEach(spec => {
             const opt = document.createElement('option');
             opt.value = spec;
@@ -194,7 +140,7 @@ function updateSpecs() {
 }
 
 // ==========================================
-// 3. Core Logic
+// 3. Core Logic (Business Rules)
 // ==========================================
 
 function validateInput(el) {
@@ -241,11 +187,12 @@ function applyDefaults() {
 
     updateSummaryReport(inputs);
     pendingMealItems = []; 
+    
     document.getElementById('fruit-body').innerHTML = '';
     document.getElementById('meals-body').innerHTML = '';
-    
     const container = document.getElementById('ritual-sections-container');
     container.innerHTML = ''; 
+    
     ['head7', 'ritual', 'funeral'].forEach(sec => {
         createRitualDOM(sec);
         generateRitualSection(sec, inputs);
@@ -318,50 +265,38 @@ function generateMealsSection(inputs) {
     const tbody = document.getElementById('meals-body');
     tbody.innerHTML = ''; 
 
-    // ==========================================
     // [設定區域] 豎靈餐點邏輯切換方案
-    // 填入 'A' : 方案1 - 固定為「五菜一飯(素)」，不隨上方葷素欄位改變
-    // 填入 'B' : 方案2 - 連動上方「葷/素」欄位 (素->素, 葷->葷)
-    // ==========================================
-    const MEAL_SCHEME = 'B'; // <--- 請在這裡修改 'A' 或 'B'
+    // 'A': 固定為「五菜一飯(素)」
+    // 'B': 跟隨上方「葷/素」設定
+    const MEAL_SCHEME = 'B'; 
 
     let mealItemSpec = "";
     if (MEAL_SCHEME === 'A') {
         mealItemSpec = "五菜一飯(素)";
     } else {
-        // 預設為 B 方案 (連動)
         mealItemSpec = inputs.diet === '素' ? "五菜一飯(素)" : "五菜一飯(葷)";
     }
     
-    // [設定區域] 針對不同地點與葷素設定「豎靈」的預設數量
+    // [設定區域] 豎靈預設數量 
+    // 您可以在此設定初始數量，目前設定為 0 (不顯示，需手動調整)
     let item1_Qty = 0; // 白飯、鹹蛋
     let item2_Qty = 0; // 五菜一飯
 
+    // 這裡保留判斷結構，未來若要針對地點/葷素給不同預設值，直接修改數字即可
     if(inputs.location === '自宅') {
-        // 自宅設定
-        if(inputs.diet === '素') {
-            item1_Qty = 0;
-            item2_Qty = 0;
-        } else {
-            item1_Qty = 0;
-            item2_Qty = 0;
-        }
+        if(inputs.diet === '素') { item1_Qty = 0; item2_Qty = 0; } 
+        else { item1_Qty = 0; item2_Qty = 0; }
     } else {
-        // 其他地點 (暫存、市殯、會館)
-        if(inputs.diet === '素') {
-            item1_Qty = 0;
-            item2_Qty = 0;
-        } else {
-            item1_Qty = 0;
-            item2_Qty = 0;
-        }
+        if(inputs.diet === '素') { item1_Qty = 0; item2_Qty = 0; } 
+        else { item1_Qty = 0; item2_Qty = 0; }
     }
 
     // 產生「豎靈」資料列 (日期統一為接案日)
+    // 注意：這裡只會產生「豎靈」，不再產生「腳尾飯」
     addMealRowData(inputs.receiveDate, "豎靈", "白飯、鹹蛋", item1_Qty);
     addMealRowData(inputs.receiveDate, "豎靈", mealItemSpec, item2_Qty);
 
-    // 產生後續其他儀式的飯菜資料 (頭七、法事、出殯等)
+    // 產生其他儀式飯菜 (來自頭七、法事、出殯的 JSON 設定)
     pendingMealItems.forEach(p => {
         let currentPickup = p.date;
         const ritualMap = { '頭七': 'head7', '法事': 'ritual', '出殯': 'funeral' };
@@ -380,11 +315,16 @@ function generateFruitSection(inputs) {
     const tbody = document.getElementById('fruit-body');
     tbody.innerHTML = ''; 
 
-    const d0 = addDays(inputs.receiveDate, 0);// 接案日 (預設)
-    const d1 = addDays(inputs.receiveDate, 2);// 接案日 + 2天
-    const d2 = addDays(inputs.receiveDate, 5);// 接案日 + 5天
+    // 1. 接案日當天 (預設數量 0)
+    const d0 = addDays(inputs.receiveDate, 0); 
+    addFruitRow(d0, 0);
+
+    // 2. 接案日 + 2天
+    const d1 = addDays(inputs.receiveDate, 2);
     
-    addFruitRow(d0, 0);// 數量預設 0
+    // 3. 接案日 + 5天
+    const d2 = addDays(inputs.receiveDate, 5);
+    
     addFruitRow(d1, 1);
     addFruitRow(d2, 1);
     
@@ -408,8 +348,6 @@ function addFruitRow(targetDate = null, defaultQty = 1) {
         if (!dateValue && tbody.children.length === 0) dateValue = ''; 
     }
 
-    let qtyValue = defaultQty;
-
     const tr = document.createElement('tr');
     tr.innerHTML = `
         <td class="td-date-cell">
@@ -423,7 +361,7 @@ function addFruitRow(targetDate = null, defaultQty = 1) {
             ${item}
             <input type="hidden" class="row-item" value="${item}">
         </td>
-        <td><input type="number" class="row-qty" value="${qtyValue}" min="0"></td>
+        <td><input type="number" class="row-qty" value="${defaultQty}" min="0"></td>
         <td class="row-unit mobile-hide">${info['單位']}</td>
         <td class="row-price mobile-hide" data-price="${info['單價']}">${info['單價']}</td>
         <td class="row-total mobile-hide">0</td>
@@ -439,7 +377,6 @@ function validateFruitDates() {
     if(!funeralInput || !funeralInput.value) return;
 
     const funeralDate = new Date(funeralInput.value);
-    
     const warningThreshold = new Date(funeralDate);
     warningThreshold.setDate(funeralDate.getDate() - 2);
     warningThreshold.setHours(23, 59, 59, 999); 
@@ -479,6 +416,7 @@ function createRitualDOM(key) {
     section.id = `section-${key}`;
     section.setAttribute('draggable', 'true');
     
+    // HTML 結構調整：Header-Left -> Pickup-Info -> Header-Right
     section.innerHTML = `
       <div class="section-header-row">
         <div class="header-left">
@@ -546,7 +484,6 @@ function mergeTableCells(tbody) {
 
     for (let i = 0; i < rows.length; i++) {
         const row = rows[i];
-        // 抓取隱藏的 input 值
         const dateInput = row.querySelector('.date-input-hidden');
         const ritualInput = row.cells[1].querySelector('input');
         
@@ -783,12 +720,96 @@ function getDragAfterElement(container, y) {
     }, { offset: Number.NEGATIVE_INFINITY }).element;
 }
 
+// 新增功能：分享圖片 (支援 Line)
+function shareImage() {
+    if (!navigator.canShare) {
+        alert("您的瀏覽器不支援原生分享功能，請使用「存為圖片」後再手動傳送。");
+        return;
+    }
+
+    const panel = document.getElementById('control-panel-section');
+    const area = document.getElementById('capture-area');
+    const footer = document.querySelector('.footer-controls'); 
+    
+    const originalPanelDisplay = panel.style.display;
+    const originalFooterDisplay = footer ? footer.style.display : '';
+    const originalWidth = area.style.width;
+    const originalMargin = area.style.margin;
+    const originalMaxWidth = area.style.maxWidth;
+    const originalTransform = area.style.transform;
+    
+    panel.style.display = 'none';
+    if(footer) footer.style.display = 'none';
+    area.style.width = '1100px';
+    area.style.maxWidth = 'none'; 
+    area.style.margin = '0'; 
+    area.style.transform = 'none'; 
+    window.scrollTo(0, 0);
+
+    const options = {
+        scale: 2, 
+        useCORS: true, 
+        width: 1100, 
+        windowWidth: 1280, 
+        x: 0, 
+        y: 0, 
+        scrollX: 0, 
+        scrollY: 0,
+        backgroundColor: "#ffffff"
+    };
+
+    html2canvas(area, options).then(canvas => {
+        canvas.toBlob(async (blob) => {
+            const name = document.getElementById('caseName').value || '訂購單';
+            const now = new Date();
+            const timeStr = `${now.getMonth()+1}${now.getDate()}_${now.getHours()}${now.getMinutes()}`;
+            const fileName = `訂購單_${name}_${timeStr}.png`;
+            const file = new File([blob], fileName, { type: "image/png" });
+            const shareData = {
+                files: [file],
+                title: '祭品訂購單',
+                text: `案件：${name} 的祭品訂購單`
+            };
+
+            try {
+                if (navigator.canShare(shareData)) {
+                    await navigator.share(shareData);
+                } else {
+                    alert("您的裝置不支援圖片分享，請改用「存為圖片」。");
+                }
+            } catch (err) {
+                if (err.name !== 'AbortError') {
+                    console.error("分享失敗:", err);
+                    alert("分享失敗，請稍後再試。");
+                }
+            } finally {
+                restoreStyles();
+            }
+        }, 'image/png');
+    }).catch(err => {
+        console.error("截圖生成失敗:", err);
+        alert("圖片生成失敗，請稍後再試。");
+        restoreStyles();
+    });
+
+    function restoreStyles() {
+        panel.style.display = originalPanelDisplay;
+        if(footer) footer.style.display = originalFooterDisplay;
+        area.style.width = originalWidth;
+        area.style.maxWidth = originalMaxWidth;
+        area.style.margin = originalMargin;
+        area.style.transform = originalTransform;
+    }
+}
+
+// 傳真功能：切換模式並列印
 function printFax() {
     document.body.classList.add('fax-mode');
     window.print();
     window.addEventListener('afterprint', () => {
         document.body.classList.remove('fax-mode');
     }, { once: true });
+    // 預防沒有觸發 afterprint 的保險機制
     setTimeout(() => {
         document.body.classList.remove('fax-mode');
     }, 2000);
@@ -853,6 +874,10 @@ function closePriceList() { document.getElementById("priceListModal").style.disp
 function showPriceTable() {
     const tbody = document.querySelector("#price-list-table tbody");
     tbody.innerHTML = "";
+    if (Object.keys(PRICE_LIST).length === 0) {
+        tbody.innerHTML = "<tr><td colspan='3'>資料尚未載入</td></tr>";
+        return;
+    }
     for(const [k, v] of Object.entries(PRICE_LIST)) {
         tbody.innerHTML += `<tr><td>${k}</td><td>${v.單位}</td><td>${v.單價}</td></tr>`;
     }
