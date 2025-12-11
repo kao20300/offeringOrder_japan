@@ -326,7 +326,8 @@ tr.row-warning td { background-color: #ffe6e6 !important; }
     position: fixed; bottom: 0; left: 0; width: 100%;
     background: rgba(255,255,255,0.98); 
     border-top: 1px solid #ccc; 
-    padding: 10px 0; 
+    /* 上下 10px，左右 5px (避免貼邊) */
+    padding: 10px 5px; 
     display: flex; 
     justify-content: center; 
     gap: 20px; 
@@ -336,16 +337,7 @@ tr.row-warning td { background-color: #ffe6e6 !important; }
     white-space: nowrap;
     -webkit-overflow-scrolling: touch; 
 }
-/* [修正] 手機版底部按鈕優化 */
-    .footer-controls { 
-        padding-bottom: calc(15px + env(safe-area-inset-bottom)); 
-        padding-top: 15px;
-        justify-content: space-evenly; 
-        
-        /* ▼▼▼ 請修改這裡的數值 ▼▼▼ */
-        padding-left: 40px;  /* 原本 20px，數字越大，按鈕越往中間集中 */
-        padding-right: 40px; /* 原本 20px，建議左右數值設一樣 */
-    }
+
 .footer-controls::-webkit-scrollbar { display: none; }
 
 .btn-float {
