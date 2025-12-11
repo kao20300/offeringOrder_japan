@@ -326,11 +326,13 @@ tr.row-warning td { background-color: #ffe6e6 !important; }
     position: fixed; bottom: 0; left: 0; width: 100%;
     background: rgba(255,255,255,0.98); 
     border-top: 1px solid #ccc; 
-    /* 上下 10px，左右 5px (避免貼邊) */
-    padding: 10px 5px; 
+    /* 上下 10px，左右 10px (避免貼邊) */
+    padding: 10px 10px; 
     display: flex; 
     justify-content: center; 
-    gap: 20px; 
+    /* ▼▼▼ [2] 控制按鈕之間的「最小距離」 ▼▼▼ */
+    /* 如果沒有寫這行，它會繼承電腦版的 20px */
+    gap: 10px; 
     z-index: 1000;
     box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
     overflow-x: auto; 
@@ -342,7 +344,7 @@ tr.row-warning td { background-color: #ffe6e6 !important; }
 
 .btn-float {
     background: #333; color: #fff; 
-    width: 60px; height: 60px; /* 手機版統一用 60px */
+    width: 55px; height: 55px; /* 手機版icon統一用 50px */
     border-radius: 50%; 
     padding: 0; border: none; cursor: pointer;
     display: flex; align-items: center; justify-content: center; 
