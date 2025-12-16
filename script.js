@@ -292,7 +292,7 @@ function generateFruitSection(inputs) {
 
 function addFruitRow(targetDate = null, defaultQty = 1) {
     const tbody = document.getElementById('fruit-body');
-    const item = "綜合果(果品)"; 
+    const item = "大綜合果(果品)"; 
     const info = getPriceInfo(item);
     let dateValue = targetDate;
     if (!dateValue) {
